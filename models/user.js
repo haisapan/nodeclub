@@ -1,6 +1,9 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var utility = require('utility');
+var mongoose  = require('mongoose');
+var BaseModel = require("./base_model");
+var renderHelper = require('../common/render_helper');
+var Schema    = mongoose.Schema;
+var utility   = require('utility');
+var _ = require('lodash');
 
 var UserSchema = new Schema({
   name: { type: String},
@@ -42,13 +45,14 @@ var UserSchema = new Schema({
   accessToken: {type: String},
 });
 
+UserSchema.plugin(BaseModel);
 UserSchema.virtual('avatar_url').get(function () {
-  var url = this.avatar || ('//gravatar.com/avatar/' + utility.md5(this.email.toLowerCase()) + '?size=48');
+  var url = this.avatar || ('https://gravatar.com/avatar/' + utility.md5(this.email.toLowerCase()) + '?size=48');
 
   // www.gravatar.com 被墙
-  url = url.replace('//www.gravatar.com', '//gravatar.com');
+  url = url.replace('www.gravatar.com', 'gravatar.com');
 
-  // 让协议自适应 protocol
+  // 让协议自适应 protocol，使用 `//` 开头
   if (url.indexOf('http:') === 0) {
     url = url.slice(5);
   }
@@ -57,6 +61,7 @@ UserSchema.virtual('avatar_url').get(function () {
   if (url.indexOf('githubusercontent') !== -1) {
     url += '&s=120';
   }
+
   return url;
 });
 

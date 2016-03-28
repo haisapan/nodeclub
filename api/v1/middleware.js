@@ -1,7 +1,6 @@
-
-var UserModel = require('../../models').User;
+var UserModel  = require('../../models').User;
 var eventproxy = require('eventproxy');
-var validator = require('validator');
+var validator  = require('validator');
 
 var auth = function (req, res, next) {
   var ep = new eventproxy();
@@ -14,6 +13,9 @@ var auth = function (req, res, next) {
     if (!user) {
       res.status(403);
       return res.send({error_msg: 'wrong accessToken'});
+    }
+    if (user.is_block) {
+      return res.send({error_msg: 'your account is blocked'});
     }
     req.user = user;
     next();

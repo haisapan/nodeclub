@@ -11,11 +11,11 @@
  */
 
 var MarkdownIt = require('markdown-it');
-var _ = require('lodash');
-var config = require('../config');
-var validator = require('validator');
-var multiline = require('multiline');
-var jsxss = require('xss');
+var _          = require('lodash');
+var config     = require('../config');
+var validator  = require('validator');
+var jsxss      = require('xss');
+var multiline = require('multiline')
 
 // Set default options
 var md = new MarkdownIt();
@@ -29,10 +29,9 @@ md.set({
 });
 
 md.renderer.rules.fence = function (tokens, idx) {
-  var token = tokens[idx];
-
-  var language = token.params && ('language-' + token.params) || '';
-  language = validator.escape(language);
+  var token    = tokens[idx];
+  var language = token.info && ('language-' + token.info) || '';
+  language     = validator.escape(language);
 
   return '<pre class="prettyprint ' + language + '">'
     + '<code>' + validator.escape(token.content) + '</code>'
@@ -40,16 +39,11 @@ md.renderer.rules.fence = function (tokens, idx) {
 };
 
 md.renderer.rules.code_block = function (tokens, idx /*, options*/) {
-  var token = tokens[idx];
-  var language = token.params && ('language-' + token.params) || '';
-  language = validator.escape(language);
-  return '<pre class="prettyprint ' + language + '">'
+  var token    = tokens[idx];
+
+  return '<pre class="prettyprint">'
     + '<code>' + validator.escape(token.content) + '</code>'
     + '</pre>';
-};
-
-md.renderer.rules.code_inline = function (tokens, idx /*, options*/) {
-  return '<code>' + validator.escape(tokens[idx].content) + '</code>';
 };
 
 var myxss = new jsxss.FilterXSS({
@@ -64,8 +58,6 @@ var myxss = new jsxss.FilterXSS({
 exports.markdown = function (text) {
   return '<div class="markdown-text">' + myxss.process(md.render(text || '')) + '</div>';
 };
-
-exports.multiline = multiline;
 
 exports.escapeSignature = function (signature) {
   return signature.split('\n').map(function (p) {
@@ -89,4 +81,12 @@ exports.tabName = function (tab) {
   }
 };
 
+exports.proxy = function (url) {
+  return url;
+  // 当 google 和 github 封锁严重时，则需要通过服务器代理访问它们的静态资源
+  // return '/agent?url=' + encodeURIComponent(url);
+};
+
+// 为了在 view 中使用
 exports._ = _;
+exports.multiline = multiline;
